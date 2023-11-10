@@ -32,13 +32,16 @@ class ExcelReview():
         return result
 
 
-    def load_table(self, xlsx_key, xlsx_sheet, begin_cell):
+    def load_full_table(self, xlsx_key, xlsx_sheet, begin_cell):
         gc = pygsheets.authorize(service_file=r'C:\Users\ws-tmn-an-15\Desktop\Харайкин М.А\Python документы\python-automation-script-jupyter-notebook-266007-21fda3e2971a.json')
         sh = gc.open_by_key(xlsx_key)
         wks = sh.worksheet_by_title(xlsx_sheet)
         wks.clear(start='a9', end=None)
         wks.set_dataframe(self.table, begin_cell, copy_index=False, copy_head=False, extend=True, fit=False, escape_formulae=True)
 
+
+    def load_by_day(self, columns):
+        pass
 
 
 if __name__ == "__main__":
