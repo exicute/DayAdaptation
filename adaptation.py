@@ -13,6 +13,7 @@ class ExcelReview():
 
     def __init__(self, table):
         self.table = table
+        self.df = pd.DataFrame()
 
 
     def get_table(self):
@@ -36,13 +37,18 @@ class ExcelReview():
         gc = pygsheets.authorize(service_file=r'C:\Users\ws-tmn-an-15\Desktop\Харайкин М.А\Python документы\python-automation-script-jupyter-notebook-266007-21fda3e2971a.json')
         sh = gc.open_by_key(xlsx_key)
         wks = sh.worksheet_by_title(xlsx_sheet)
-        wks.clear(start='a9', end=None)
-        wks.set_dataframe(self.table, begin_cell, copy_index=False, copy_head=False, extend=True, fit=False, escape_formulae=True)
+        wks.clear(start=begin_cell, end=None)
+        wks.set_dataframe(self.df, begin_cell, copy_index=False, extend=True, fit=False, escape_formulae=True)
 
 
-    def load_by_day(self, columns):
-        pass
+    def load_by_day(self, columns, day_column, xlsx_key, xlsx_sheet):
+        gc = pygsheets.authorize(service_file=r'C:\Users\ws-tmn-an-15\Desktop\Харайкин М.А\Python документы\python-automation-script-jupyter-notebook-266007-21fda3e2971a.json')
+        sh = gc.open_by_key(xlsx_key)
+        wks = sh.worksheet_by_title(xlsx_sheet)
+        names_country = wks.get_as_df(start='a1')
 
+        loaded_table = names_country.merge(self.df, how='right', on='fio')
+        return loaded_table
 
 if __name__ == "__main__":
     pass
