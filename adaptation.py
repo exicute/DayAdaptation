@@ -41,14 +41,25 @@ class ExcelReview():
         wks.set_dataframe(self.df, begin_cell, copy_index=False, extend=True, fit=False, escape_formulae=True)
 
 
-    def load_by_day(self, columns, day_column, xlsx_key, xlsx_sheet):
+    def load_by_day(self, xlsx_key, xlsx_sheet, merge_column, other_columns):
         gc = pygsheets.authorize(service_file=r'C:\Users\ws-tmn-an-15\Desktop\Харайкин М.А\Python документы\python-automation-script-jupyter-notebook-266007-21fda3e2971a.json')
         sh = gc.open_by_key(xlsx_key)
         wks = sh.worksheet_by_title(xlsx_sheet)
         names_country = wks.get_as_df(start='a1')
 
-        loaded_table = names_country.merge(self.df, how='right', on='fio')
-        return loaded_table
+        def make_sort_table(xlsx_table, merge_column, other_columns):
+            loaded_table = xlsx_table.merge(self.df, how='outer', on=merge_column)
+            loaded_table = loaded_table.fillna(0)
+
+            other_columns_df = pd.DataFrame()
+            #используя суффиксы _x, _y объединить другие столбцы в один и вставить в начало таблицы
+            return loaded_table
+
+        loaded_table = make_sort_table(names_country, merge_column, other_columns)
+        wks.clear(start='a1', end=None)
+        wks.set_dataframe(loaded_table, start='a1', copy_index=False, extend=True, fit=False, escape_formulae=True)
+
+        
 
 if __name__ == "__main__":
     pass
