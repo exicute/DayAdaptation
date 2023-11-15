@@ -52,12 +52,25 @@ class ExcelReview():
             loaded_table = loaded_table.fillna(0)
 
             other_columns_df = pd.DataFrame()
+            for col in other_columns:
+                other_columns_df[col] = loaded_table[f'{col}_x']
+                other_columns_df.loc[other_columns_df[col]==0, col] = loaded_table.loc[other_columns_df.loc[other_columns_df[col]==0].index.values,
+                                                                                   f'{col}_y']
+
+                loaded_table = loaded_table.drop(columns={f'{col}_y'})
+                loaded_table = loaded_table.rename(columns={f'{col}_x':f'{col}'})
+                loaded_table[col] = other_columns_df[col]
+
             #используя суффиксы _x, _y объединить другие столбцы в один и вставить в начало таблицы
             return loaded_table
 
         loaded_table = make_sort_table(names_country, merge_column, other_columns)
         wks.clear(start='a1', end=None)
         wks.set_dataframe(loaded_table, start='a1', copy_index=False, extend=True, fit=False, escape_formulae=True)
+
+
+    def load_month_table(self):
+        pass
 
         
 
