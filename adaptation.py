@@ -9,9 +9,11 @@ import pygsheets
 
 
 
-class ExcelReview():
+class ExcelReview(pd.DataFrame):
 
     def __init__(self, table):
+        super().__init__()
+
         self.table = table
         self.df = pd.DataFrame()
 
@@ -42,11 +44,7 @@ class ExcelReview():
 
 
     def load_by_day(self, xlsx_key, xlsx_sheet, merge_column, other_columns):
-        gc = pygsheets.authorize(service_file=r'C:\Users\ws-tmn-an-15\Desktop\Харайкин М.А\Python документы\python-automation-script-jupyter-notebook-266007-21fda3e2971a.json')
-        sh = gc.open_by_key(xlsx_key)
-        wks = sh.worksheet_by_title(xlsx_sheet)
-        names_country = wks.get_as_df(start='a1')
-
+        
         def make_sort_table(xlsx_table, merge_column, other_columns):
             loaded_table = xlsx_table.merge(self.df, how='outer', on=merge_column)
             loaded_table = loaded_table.fillna(0)
@@ -61,8 +59,16 @@ class ExcelReview():
                 loaded_table = loaded_table.rename(columns={f'{col}_x':f'{col}'})
                 loaded_table[col] = other_columns_df[col]
 
-            #используя суффиксы _x, _y объединить другие столбцы в один и вставить в начало таблицы
             return loaded_table
+
+        #реализовать функцию для таблицы с мультииндексами 
+        def multiindex_make_sort_table():
+            pass
+            
+        gc = pygsheets.authorize(service_file=r'C:\Users\ws-tmn-an-15\Desktop\Харайкин М.А\Python документы\python-automation-script-jupyter-notebook-266007-21fda3e2971a.json')
+        sh = gc.open_by_key(xlsx_key)
+        wks = sh.worksheet_by_title(xlsx_sheet)
+        names_country = wks.get_as_df(start='a1')
 
         loaded_table = make_sort_table(names_country, merge_column, other_columns)
         wks.clear(start='a1', end=None)
