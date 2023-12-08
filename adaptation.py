@@ -11,15 +11,24 @@ import pygsheets
 
 class ExcelReview(pd.DataFrame):
 
-    def __init__(self, table):
+    def __init__(self, table, bd_type):
         super().__init__()
 
+        #0 - обычный bi
+        #1 - космический bi
+        self.bd_type = bd_type
         self.table = table
         self.df = pd.DataFrame()
 
 
     def get_table(self):
-        report_rows_count = requests.post("http://dc0-prod-bi-external-01.esoft.local:10022/report/api/v1/requestReportRowsCount", json=self.table)
+        if self.bd_type==0:
+            report_rows_count = requests.post("http://dc0-prod-bi-external-01.esoft.local:10022/report/api/v1/requestReportRowsCount", json=self.table)
+            post_url ="http://dc0-prod-bi-external-01.esoft.local:10022/report/api/v1/requestRawReportData" 
+        
+        if self.bd_type==1:
+            report_rows_count = requests.post("http://dc0-prod-bi-external-10.esoft.local:10022/report/api/v1/requestReportRowsCount", json=self.table)
+            post_url ="http://dc0-prod-bi-external-10.esoft.local:10022/report/api/v1/requestRawReportData" 
 
         iterations_count = math.ceil(report_rows_count.json() / self.table['rows'])
 
@@ -27,7 +36,7 @@ class ExcelReview(pd.DataFrame):
         for i in range(iterations_count):
             start = i * self.table['rows']
             self.table['start'] = start
-            report_data_iteration = requests.post("http://dc0-prod-bi-external-01.esoft.local:10022/report/api/v1/requestRawReportData",
+            report_data_iteration = requests.post(post_url,
                                                 json=self.table)
             temp_json_table = list(report_data_iteration.json().values())
             result = pd.concat([result, pd.DataFrame.from_dict(temp_json_table)])
